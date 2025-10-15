@@ -295,7 +295,7 @@ class EMNISTDataProvider(DataProvider):
         (num_data, num_classes)
 
         """
-        # return int_targets * ((1-alpha) * int_targets + alpha/len(int_targets))
+        
         raise NotImplementedError
   
     
