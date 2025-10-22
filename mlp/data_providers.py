@@ -295,9 +295,8 @@ class EMNISTDataProvider(DataProvider):
         (num_data, num_classes)
 
         """
-        # return int_targets * ((1-alpha) * int_targets + alpha/len(int_targets))
-        raise NotImplementedError
-  
+        one_of_k_targets = self.to_one_of_k(int_targets)
+        return np.where(one_of_k_targets == 1, 1-alpha, alpha/(self.num_classes-1))
     
 
 class MetOfficeDataProvider(DataProvider):
