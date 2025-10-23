@@ -93,16 +93,17 @@ class L1L2MixPenalty(object):
     """L1 & L2 mix penalty.
     """
 
-    def __init__(self, coefficient):
+    def __init__(self, regularization_coefficient, mixing_coefficient):
         """Create a new L1 & L2 mix penalty object.
 
         Args:
             coefficient: Positive constant to scale penalty term by.
         """
-        assert coefficient > 0., 'Penalty coefficient must be positive.'
-        self.coefficient = coefficient
+        assert regularization_coefficient > 0., 'Penalty coefficient must be positive.'
+        self.regularization_coefficient = regularization_coefficient
+        self.mixing_coefficient = mixing_coefficient
 
-    def __call__(self, parameter):
+    def __call__(self, parameter, _=None):
         """Calculate L1 & L2 mix penalty value for a parameter.
 
         Args:
@@ -111,7 +112,7 @@ class L1L2MixPenalty(object):
         Returns:
             Value of penalty term.
         """
-        return self.coefficient * (np.sum(np.abs(parameter)) + 0.5 * np.sum(parameter ** 2))
+        return self.regularization_coefficient * (self.mixing_coefficient * np.sum(np.abs(parameter)) + (1-self.mixing_coefficient) * 0.5 * np.sum(parameter ** 2))
 
     def grad(self, parameter):
         """Calculate the penalty gradient with respect to the parameter.
@@ -123,7 +124,7 @@ class L1L2MixPenalty(object):
             Value of penalty gradient with respect to parameter. This
             should be an array of the same shape as the parameter.
         """
-        self.coefficient * (np.sign(parameter) + parameter)
+        return self.regularization_coefficient * (self.mixing_coefficient * np.sign(parameter) + (1-self.mixing_coefficient) * parameter)
 
     def __repr__(self):
         return 'L1L2MixPenalty({0})'.format(self.coefficient)
