@@ -570,7 +570,6 @@ class SoftmaxLayer(Layer):
     def __repr__(self):
         return 'SoftmaxLayer'
     
-    
 class CustomActivationLayer(Layer):
     """Layer implementing a custom activation layer."""
 
@@ -585,7 +584,7 @@ class CustomActivationLayer(Layer):
         Returns:
             outputs: Array of layer outputs of shape (batch_size, output_dim).
         """
-        return 1 / (10 * (1. + np.exp(-inputs)))
+        return 1 / (20 * (1. + np.exp(-inputs)))
 
     def bprop(self, inputs, outputs, grads_wrt_outputs):
         """Back propagates gradients through a layer.
@@ -604,10 +603,11 @@ class CustomActivationLayer(Layer):
             Array of gradients with respect to the layer inputs of shape
             (batch_size, input_dim).
         """
-        return 0.1 * grads_wrt_outputs * outputs * (1. - outputs)
+        return  grads_wrt_outputs * outputs * (1. - 20 * outputs)
 
     def __repr__(self):
         return 'CustomActivationLayer'
+
 
 class RadialBasisFunctionLayer(Layer):
     """Layer implementing projection to a grid of radial basis functions."""
@@ -687,6 +687,7 @@ class DropoutLayer(StochasticLayer):
         self.incl_prob = incl_prob
         self.share_across_batch = share_across_batch
         self.rng = rng
+        self.mask = None
 
     def fprop(self, inputs, stochastic=True):
         """Forward propagates activations through the layer transformation.
@@ -703,7 +704,8 @@ class DropoutLayer(StochasticLayer):
         Returns:
             outputs: Array of layer outputs of shape (batch_size, output_dim).
         """
-        raise NotImplementedError
+        self.mask = np.random.randint(0, 2, size=inputs.shape) 
+        return self.mask * inputs
 
     def bprop(self, inputs, outputs, grads_wrt_outputs):
         """Back propagates gradients through a layer.
@@ -723,7 +725,7 @@ class DropoutLayer(StochasticLayer):
             Array of gradients with respect to the layer inputs of shape
             (batch_size, input_dim).
         """
-        raise NotImplementedError
+        return self.mask
 
     def __repr__(self):
         return 'DropoutLayer(incl_prob={0:.1f})'.format(self.incl_prob)
