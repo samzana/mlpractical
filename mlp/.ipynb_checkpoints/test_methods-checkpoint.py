@@ -13,7 +13,7 @@ def test_dropout_layer():
     
     x = rng.normal(loc=0, scale=5.0, size=(50, 3, 64, 64))
 
-    correct_outputs = np.load(os.path.join(os.environ['MLP_DATA_DIR'], '2826214_regularization_test_pack.npy'), allow_pickle=True).item()
+    correct_outputs = np.load(os.path.join(os.environ['MLP_DATA_DIR'], 'regularization_debug_pack.npy'), allow_pickle=True).item()
     
     rng = np.random.RandomState(92019)
     layer = DropoutLayer(rng=rng)
@@ -38,7 +38,7 @@ def test_L1_Penalty():
     
     x = rng.normal(loc=0, scale=5.0, size=(50, 3, 64, 64))
 
-    correct_outputs = np.load(os.path.join(os.environ['MLP_DATA_DIR'], '2826214_regularization_test_pack.npy'), allow_pickle=True).item()
+    correct_outputs = np.load(os.path.join(os.environ['MLP_DATA_DIR'], 'regularization_debug_pack.npy'), allow_pickle=True).item()
     
     layer = L1Penalty(1e-4)
 
@@ -62,7 +62,7 @@ def test_L2_Penalty():
     
     x = rng.normal(loc=0, scale=5.0, size=(50, 3, 64, 64))
 
-    correct_outputs = np.load(os.path.join(os.environ['MLP_DATA_DIR'], '2826214_regularization_test_pack.npy'), allow_pickle=True).item()
+    correct_outputs = np.load(os.path.join(os.environ['MLP_DATA_DIR'], 'regularization_debug_pack.npy'), allow_pickle=True).item()
     
     layer = L2Penalty(1e-4)
 

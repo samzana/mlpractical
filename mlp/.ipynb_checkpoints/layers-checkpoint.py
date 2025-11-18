@@ -687,7 +687,6 @@ class DropoutLayer(StochasticLayer):
         self.incl_prob = incl_prob
         self.share_across_batch = share_across_batch
         self.rng = rng
-        self.mask = None
 
     def fprop(self, inputs, stochastic=True):
         """Forward propagates activations through the layer transformation.
@@ -704,8 +703,32 @@ class DropoutLayer(StochasticLayer):
         Returns:
             outputs: Array of layer outputs of shape (batch_size, output_dim).
         """
-        self.mask = np.random.randint(0, 2, size=inputs.shape) 
-        return self.mask * inputs
+        if stochastic:
+            # Generate mask and apply dropout
+            mask_shape = (1,) + inputs.shape[1:] if self.share_across_batch else inputs.shape
+            self._mask = (self.rng.uniform(size=mask_shape) < self.incl_prob)
+            return inputs * self._mask
+        else:
+            # Deterministic forward pass (test time)
+            return inputs * self.incl_prob
+    
+    def bprop(self, inputs, outputs, grads_wrt_outputs):
+        """Back propagates gradients through the layer.
+
+        Args:
+            inputs: Array of shape (batch_size, input_dim).
+            outputs: Array of shape (batch_size, output_dim).
+            grads_wrt_outputs: Array of shape (batch_size, output_dim).
+
+        Returns:
+            grads_wrt_inputs: Array of shape (batch_size, input_dim).
+        """
+        # STUDENT: Complete this method
+        # Hint: Use the mask stored in fprop
+        return grads_wrt_outputs * self._mask
+
+
+        
 
     def bprop(self, inputs, outputs, grads_wrt_outputs):
         """Back propagates gradients through a layer.
@@ -725,10 +748,26 @@ class DropoutLayer(StochasticLayer):
             Array of gradients with respect to the layer inputs of shape
             (batch_size, input_dim).
         """
-        return self.mask
+        return self._mask * grads_wrt_outputs
 
     def __repr__(self):
         return 'DropoutLayer(incl_prob={0:.1f})'.format(self.incl_prob)
+
+    def random_binary_mask(self, prob_1, shape, rng):
+        """Generates a random binary mask array of a given shape.
+        
+        Each value in the output array is independently sampled as a binary 
+        value (0 or 1), with probability prob_1 of being 1.
+        
+        Args:
+            prob_1: Scalar in [0, 1] specifying probability of each entry being 1.
+            shape: Shape of the returned mask array.
+            rng (RandomState): Seeded random number generator object.
+        
+        Returns:
+            Random binary mask array of specified shape.
+        """
+        return np.random.binomial(1, prob_1, shape)
 
 class ReshapeLayer(Layer):
     """Layer which reshapes dimensions of inputs."""
